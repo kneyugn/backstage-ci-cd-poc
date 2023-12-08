@@ -8,6 +8,11 @@ on:
     #   - "docs/**"
     #   - "mkdocs.yml"
 
+
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   publish-techdocs-site:
     runs-on: ubuntu-latest
@@ -24,13 +29,15 @@ jobs:
       # ENTITY_NAME: '{{ cookiecutter.component_id | jsonify }}'
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
       - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v0'
+        name: 'Authenticate to GCP'
+        uses: 'google-github-actions/auth@v0.3.1'
         with:
-          credentials_json: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}'
+          create_credentials_file: 'true'
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      - name: Checkout code
+        uses: actions/checkout@v4
       - uses: actions/setup-node@v3
       - uses: actions/setup-python@v4
         with:
